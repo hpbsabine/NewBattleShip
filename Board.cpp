@@ -18,6 +18,36 @@ Board::Board() {
     grid.resize(BOARD_SIZE, std::vector<Cell>(BOARD_SIZE));
 }
 
+void Board::playerPlaceShips() {
+    std::cout << "Place your ships.\n";
+    for (int ship = 0; ship < 3; ++ship) { // Assuming the player has 3 ships
+        int row, col;
+        std::cout << "Enter coordinates for Ship " << ship + 1 << " (row column): ";
+        std::cin >> row >> col;
+
+        // Ensure the entered coordinates are within the board's bounds
+        if (row < 1 || row > BOARD_SIZE || col < 1 || col > BOARD_SIZE) {
+            std::cout << "Invalid coordinates. Try again.\n";
+            --ship; // Go back to the previous ship iteration
+            continue;
+        }
+
+        // Convert input coordinates to zero-based indexing
+        row--;
+        col--;
+
+        // Check if the cell is already occupied by a ship
+        if (grid[row][col].symbol == 'S') {
+            std::cout << "This cell is already occupied by a ship. Try again.\n";
+            --ship; // Go back to the previous ship iteration
+            continue;
+        }
+
+        // Place the ship symbol on the board
+        setSymbol(row, col, 'S');
+    }
+}
+
 void Board::display(bool showShips) const {
     std::cout << "  ";
     for (int i = 0; i < BOARD_SIZE; ++i)
@@ -60,25 +90,25 @@ bool Board::isShipCell(int row, int col) const {
 }
 
 void Board::activateSpotterPlane(const Board& computerBoard) {
-    // Find a cell containing a ship on the computer's board
-    int row, col;
-    bool shipFound = false;
+    // Find a cell containing an unhit ship on the computer's board
+    std::vector<std::pair<int, int> > unhitShipCells;
     for (int i = 0; i < BOARD_SIZE; ++i) {
         for (int j = 0; j < BOARD_SIZE; ++j) {
-            if (computerBoard.grid[i][j].symbol == 'S') {
-                row = i;
-                col = j;
-                shipFound = true;
-                break;
+            if (computerBoard.grid[i][j].symbol == 'S' && !computerBoard.grid[i][j].isCellHit()) {
+                unhitShipCells.push_back(std::make_pair(i, j));
             }
-        }
-        if (shipFound) {
-            break;
         }
     }
 
-    // Reveal the position of the ship
-    std::cout << "Spotter plane reveals a ship at position: " << row + 1 << ", " << col + 1 << std::endl;
+    // If there are unhit ship cells, reveal the position of one of them
+    if (!unhitShipCells.empty()) {
+        int randomIndex = rand() % unhitShipCells.size();
+        int row = unhitShipCells[randomIndex].first;
+        int col = unhitShipCells[randomIndex].second;
+        std::cout << "Spotter plane reveals a ship at position: " << row + 1 << ", " << col + 1 << std::endl;
+    } else {
+        std::cout << "Spotter plane couldn't find any unhit ships." << std::endl;
+    }
 }
 
 
@@ -163,7 +193,7 @@ void Board::playGame() {
     const int maxTurns = 25; // Adjust the maximum number of turns as needed
 
     // Place ships on the player and computer boards
-    placeShips(*this, 3);
+    playerPlaceShips();
     Board computerBoard;
     placeShips(computerBoard, 3);
 

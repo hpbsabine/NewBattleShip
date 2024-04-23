@@ -36,6 +36,7 @@ public:
     void computerMove(Board& playerBoard);
     bool checkGameOver(const Board& board);
     void playGame();
+    void playerPlaceShips();
 };
 
-#endif // BOARD_H
+#endif

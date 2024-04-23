@@ -1,9 +1,8 @@
 #include "Board.h"
 
 int main() {
-    srand(time(0));
 
-    Board playerBoard;
+    Board playerBoard;2
     playerBoard.playGame();
 
     return 0;
