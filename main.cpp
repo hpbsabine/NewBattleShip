@@ -1,8 +1,9 @@
 #include "Board.h"
+#include "Cell.h"
 
-int main() {
-
-    Board playerBoard;2
+int main()
+{
+    Board playerBoard;
     playerBoard.playGame();
 
     return 0;

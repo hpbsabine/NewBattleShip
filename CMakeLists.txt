@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 project(NewBattleShip)
 
 # Add executable
-add_executable(NewBattleShip main.cpp Board.cpp)
+add_executable(NewBattleShip main.cpp Board.cpp Cell.h)
 
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 11)

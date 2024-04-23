@@ -5,19 +5,9 @@
 #include <vector>
 #include <cstdlib>
 #include <ctime>
+#include "Cell.h"
 
 const int BOARD_SIZE = 5;
-
-class Cell {
-public:
-    char symbol;
-    bool isHit;
-
-    Cell();
-    bool isCellHit() const;
-    void markAsHit();
-    void setSymbol(char sym);
-};
 
 class Board {
 private:
