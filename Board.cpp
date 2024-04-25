@@ -4,43 +4,43 @@
 Cell::Cell() : symbol('~'), isHit(false) {}
 
 // Member function of Cell Class which returns whether the cell has been hit or not (t/f)
-bool Cell::isCellHit() const {
+bool Cell::hitCheck() const {
     return isHit;
 }
 
 // Member function of Cell Class which marks the cell as hit
-bool Cell::markAsHit() {
+bool Cell::markHit() {
     isHit = true;
 }
 
 // Member function of Cell Class which sets the symbol of the cell
-void Cell::setSymbol(char sym) {
+void Cell::changeSymbol(char sym) {
     symbol = sym;
 }
 
 // Member function of the board class to mark a cell as hit
-void Board::markCell(int row, int col) {
-    grid[row][col].markAsHit();
+void Board::setCell(int row, int col) {
+    grid[row][col].markHit();
 }
 
 // Member function of the board class to set the symbol of a cell
-void Board::setSymbol(int row, int col, char sym) {
-    grid[row][col].setSymbol(sym);
+void Board::changeSymbol(int row, int col, char sym) {
+    grid[row][col].changeSymbol(sym);
 }
 
 // Member function of the board class to check if a cell has been hit
-bool Board::isCellHit(int row, int col) const {
-    return grid[row][col].isCellHit();
+bool Board::hitCheck(int row, int col) const {
+    return grid[row][col].hitCheck();
 }
 
 // Member function of the board class to check if a cell contains a ship
-bool Board::isShipCell(int row, int col) const {
+bool Board::containsShip(int row, int col) const {
     return grid[row][col].symbol == 'S';
 }
 
 //constructor to create the board
 Board::Board() {
-    grid.resize(BOARD_SIZE, std::vector<Cell>(BOARD_SIZE));
+    grid.resize(Size, std::vector<Cell>(Size));
 }
 
 
@@ -53,7 +53,7 @@ void Board::playerPlaceShips() {
         std::cin >> row >> col;
 
         // Ensure the entered coordinates are within the board's bounds
-        if (row < 1 || row > BOARD_SIZE || col < 1 || col > BOARD_SIZE) {
+        if (row < 1 || row > Size || col < 1 || col > Size) {
             std::cout << "Invalid coordinates. Try again.\n";
             --ship; // Go back to the previous ship iteration
             continue;
@@ -71,7 +71,7 @@ void Board::playerPlaceShips() {
         }
 
         // Place the ship symbol on the board
-        setSymbol(row, col, 'S');
+        changeSymbol(row, col, 'S');
     }
 }
 
@@ -80,7 +80,7 @@ void Board::placeShips(Board& board, int numShips) {
     // Initialize random number generator
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<int> dis(0, BOARD_SIZE - 1);
+    std::uniform_int_distribution<int> dis(0, Size - 1);
 
     for (int ship = 0; ship < numShips; ++ship) {
         int row = dis(gen);
@@ -93,21 +93,21 @@ void Board::placeShips(Board& board, int numShips) {
         }
 
         // Place the ship symbol on the board
-        board.setSymbol(row, col, 'S');
+        board.changeSymbol(row, col, 'S');
     }
 }
 
 // Function to display the current state of the board using a boolean to determine whether to display or not
 void Board::display(bool showShips) const {
     std::cout << "  ";
-    for (int i = 0; i < BOARD_SIZE; ++i)
+    for (int i = 0; i < Size; ++i)
         std::cout << i + 1 << " ";
     std::cout << std::endl;
 
-    for (int i = 0; i < BOARD_SIZE; ++i) {
+    for (int i = 0; i < Size; ++i) {
         std::cout << i + 1 << " ";
-        for (int j = 0; j < BOARD_SIZE; ++j) {
-            if (grid[i][j].isCellHit()) {
+        for (int j = 0; j < Size; ++j) {
+            if (grid[i][j].hitCheck()) {
                 if (grid[i][j].symbol == 'S') {
                     std::cout << "H ";
                 } else {
@@ -127,9 +127,9 @@ void Board::display(bool showShips) const {
 void Board::activateSpotterPlane(const Board& computerBoard) {
     // Find a cell containing an unhit ship on the computer's board
     std::vector<std::pair<int, int> > unhitShipCells;
-    for (int i = 0; i < BOARD_SIZE; ++i) {
-        for (int j = 0; j < BOARD_SIZE; ++j) {
-            if (computerBoard.grid[i][j].symbol == 'S' && !computerBoard.grid[i][j].isCellHit()) {
+    for (int i = 0; i < Size; ++i) {
+        for (int j = 0; j < Size; ++j) {
+            if (computerBoard.grid[i][j].symbol == 'S' && !computerBoard.grid[i][j].hitCheck()) {
                 unhitShipCells.push_back(std::make_pair(i, j));
             }
         }
@@ -154,7 +154,7 @@ void Board::playerMove(Board& opponentBoard) {
     std::cin >> row >> col;
 
     // Ensure the entered coordinates are within the board's bounds
-    if (row < 1 || row > BOARD_SIZE || col < 1 || col > BOARD_SIZE) {
+    if (row < 1 || row > Size || col < 1 || col > Size) {
         std::cout << "Invalid coordinates. Try again.\n";
         playerMove(opponentBoard); // Recursively call playerMove to retry input
         return;
@@ -165,17 +165,17 @@ void Board::playerMove(Board& opponentBoard) {
     col--;
 
     // Check if the cell has already been hit
-    if (opponentBoard.isCellHit(row, col)) {
+    if (opponentBoard.hitCheck(row, col)) {
         std::cout << "You've already fired at this cell. Try again.\n";
         playerMove(opponentBoard); // Recursively call playerMove to retry input
         return;
     }
 
     // Mark the cell as hit on the opponent's board
-    opponentBoard.markCell(row, col);
+    opponentBoard.setCell(row, col);
 
     // Check if the hit cell contains a ship
-    if (opponentBoard.isShipCell(row, col)) {
+    if (opponentBoard.containsShip(row, col)) {
         std::cout << "Hit! You've hit an enemy ship!\n";
     } else {
         std::cout << "Miss! You missed the enemy's ships.\n";
@@ -189,22 +189,22 @@ void Board::computerMove(Board& playerBoard) {
     // Initialize random number generator
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<int> dis(0, BOARD_SIZE - 1);
+    std::uniform_int_distribution<int> dis(0, Size - 1);
 
     int row = dis(gen);
     int col = dis(gen);
 
     // Check if the selected cell has already been hit
-    while (playerBoard.isCellHit(row, col)) {
+    while (playerBoard.hitCheck(row, col)) {
         row = dis(gen);
         col = dis(gen);
     }
 
     // Mark the cell as hit on the player's board
-    playerBoard.markCell(row, col);
+    playerBoard.setCell(row, col);
 
     // Check if the hit cell contains a ship
-    if (playerBoard.isShipCell(row, col)) {
+    if (playerBoard.containsShip(row, col)) {
         std::cout << "The computer hit your ship at position " << row + 1 << ", " << col + 1 << "!\n";
     } else {
         std::cout << "The computer missed at position " << row + 1 << ", " << col + 1 << ".\n";
@@ -266,9 +266,9 @@ void Board::playGame() {
 // Member function of the board class to check if the game is over
 bool Board::checkGameOver(const Board& board) {
     // Iterate over the board and check if all ships have been hit
-    for (int row = 0; row < BOARD_SIZE; ++row) {
-        for (int col = 0; col < BOARD_SIZE; ++col) {
-            if (board.grid[row][col].symbol == 'S' && !board.grid[row][col].isCellHit()) {
+    for (int row = 0; row < Size; ++row) {
+        for (int col = 0; col < Size; ++col) {
+            if (board.grid[row][col].symbol == 'S' && !board.grid[row][col].hitCheck()) {
                 // If there's a ship cell that hasn't been hit, the game is not over
                 return false;
             }

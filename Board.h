@@ -8,7 +8,7 @@
 #include "Cell.h"
 #include <random>
 
-const int BOARD_SIZE = 5;
+const int Size = 5;
 
 class Board {
 private:
@@ -17,10 +17,10 @@ private:
 public:
     Board();
     void display(bool showShips = false) const;
-    void markCell(int row, int col);
-    void setSymbol(int row, int col, char sym);
-    bool isCellHit(int row, int col) const;
-    bool isShipCell(int row, int col) const;
+    void setCell(int row, int col);
+    void changeSymbol(int row, int col, char sym);
+    bool hitCheck(int row, int col) const;
+    bool containsShip(int row, int col) const;
     void activateSpotterPlane(const Board& computerBoard);
     void placeShips(Board& board, int numShips);
     void playerPlaceShips();

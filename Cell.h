@@ -7,9 +7,9 @@ public:
     bool isHit;
 
     Cell();
-    bool isCellHit() const;
-    bool markAsHit();
-    void setSymbol(char sym);
+    bool hitCheck() const;
+    bool markHit();
+    void changeSymbol(char sym);
 };
 
 #endif
