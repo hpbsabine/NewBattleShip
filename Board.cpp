@@ -9,13 +9,33 @@ bool Cell::isCellHit() const {
 }
 
 // Member function of Cell Class which marks the cell as hit
-void Cell::markAsHit() {
+bool Cell::markAsHit() {
     isHit = true;
 }
 
 // Member function of Cell Class which sets the symbol of the cell
 void Cell::setSymbol(char sym) {
     symbol = sym;
+}
+
+// Member function of the board class to mark a cell as hit
+void Board::markCell(int row, int col) {
+    grid[row][col].markAsHit();
+}
+
+// Member function of the board class to set the symbol of a cell
+void Board::setSymbol(int row, int col, char sym) {
+    grid[row][col].setSymbol(sym);
+}
+
+// Member function of the board class to check if a cell has been hit
+bool Board::isCellHit(int row, int col) const {
+    return grid[row][col].isCellHit();
+}
+
+// Member function of the board class to check if a cell contains a ship
+bool Board::isShipCell(int row, int col) const {
+    return grid[row][col].symbol == 'S';
 }
 
 //constructor to create the board
@@ -55,8 +75,29 @@ void Board::playerPlaceShips() {
     }
 }
 
-// Function to display the current state of the board using a
-// boolean to determine whether to display or not
+// Function to place ships on the board by intializing the board into a 2D Vector of Cells
+void Board::placeShips(Board& board, int numShips) {
+    // Initialize random number generator
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<int> dis(0, BOARD_SIZE - 1);
+
+    for (int ship = 0; ship < numShips; ++ship) {
+        int row = dis(gen);
+        int col = dis(gen);
+
+        // Ensure the cell is empty before placing a ship
+        while (board.grid[row][col].symbol == 'S') {
+            row = dis(gen);
+            col = dis(gen);
+        }
+
+        // Place the ship symbol on the board
+        board.setSymbol(row, col, 'S');
+    }
+}
+
+// Function to display the current state of the board using a boolean to determine whether to display or not
 void Board::display(bool showShips) const {
     std::cout << "  ";
     for (int i = 0; i < BOARD_SIZE; ++i)
@@ -82,26 +123,6 @@ void Board::display(bool showShips) const {
     }
 }
 
-// Member function of the board class to mark a cell as hit
-void Board::markCell(int row, int col) {
-    grid[row][col].markAsHit();
-}
-
-// Member function of the board class to set the symbol of a cell
-void Board::setSymbol(int row, int col, char sym) {
-    grid[row][col].setSymbol(sym);
-}
-
-// Member function of the board class to check if a cell has been hit
-bool Board::isCellHit(int row, int col) const {
-    return grid[row][col].isCellHit();
-}
-
-// Member function of the board class to check if a cell contains a ship
-bool Board::isShipCell(int row, int col) const {
-    return grid[row][col].symbol == 'S';
-}
-
 // Member function of the board class to activate the spotter plane power-up
 void Board::activateSpotterPlane(const Board& computerBoard) {
     // Find a cell containing an unhit ship on the computer's board
@@ -122,26 +143,6 @@ void Board::activateSpotterPlane(const Board& computerBoard) {
         std::cout << "Spotter plane reveals a ship at position: " << row + 1 << ", " << col + 1 << std::endl;
     } else {
         std::cout << "Spotter plane couldn't find any unhit ships." << std::endl;
-    }
-}
-
-// Member function of the board class to place ships on the computer's board
-void Board::placeShips(Board& board, int numShips)
-{
-    for (int ship = 0; ship < numShips; ++ship)
-    {
-        int row = rand() % BOARD_SIZE;
-        int col = rand() % BOARD_SIZE;
-
-        // Ensure the cell is empty before placing a ship
-        while (board.grid[row][col].symbol == 'S')
-        {
-            row = rand() % BOARD_SIZE;
-            col = rand() % BOARD_SIZE;
-        }
-
-        // Place the ship symbol on the board
-        board.setSymbol(row, col, 'S');
     }
 }
 
@@ -181,17 +182,22 @@ void Board::playerMove(Board& opponentBoard) {
     }
 }
 
-void Board::computerMove(Board& playerBoard) {
-    int row, col;
+// Member function of the board class to handle the computer's move
+#include <random>
 
-    // Generate random coordinates for the computer's move
-    row = rand() % BOARD_SIZE;
-    col = rand() % BOARD_SIZE;
+void Board::computerMove(Board& playerBoard) {
+    // Initialize random number generator
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<int> dis(0, BOARD_SIZE - 1);
+
+    int row = dis(gen);
+    int col = dis(gen);
 
     // Check if the selected cell has already been hit
     while (playerBoard.isCellHit(row, col)) {
-        row = rand() % BOARD_SIZE;
-        col = rand() % BOARD_SIZE;
+        row = dis(gen);
+        col = dis(gen);
     }
 
     // Mark the cell as hit on the player's board
@@ -205,6 +211,7 @@ void Board::computerMove(Board& playerBoard) {
     }
 }
 
+// Member function of the board class to play the game, tying together all the previously declared functions
 void Board::playGame() {
     int turnCount = 0;
     const int maxTurns = 25; // Adjust the maximum number of turns as needed
@@ -256,6 +263,7 @@ void Board::playGame() {
     }
 }
 
+// Member function of the board class to check if the game is over
 bool Board::checkGameOver(const Board& board) {
     // Iterate over the board and check if all ships have been hit
     for (int row = 0; row < BOARD_SIZE; ++row) {

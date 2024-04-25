@@ -8,7 +8,7 @@ public:
 
     Cell();
     bool isCellHit() const;
-    void markAsHit();
+    bool markAsHit();
     void setSymbol(char sym);
 };
 

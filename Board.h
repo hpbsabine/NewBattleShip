@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <ctime>
 #include "Cell.h"
+#include <random>
 
 const int BOARD_SIZE = 5;
 
@@ -22,11 +23,11 @@ public:
     bool isShipCell(int row, int col) const;
     void activateSpotterPlane(const Board& computerBoard);
     void placeShips(Board& board, int numShips);
+    void playerPlaceShips();
     void playerMove(Board& opponentBoard);
     void computerMove(Board& playerBoard);
     bool checkGameOver(const Board& board);
     void playGame();
-    void playerPlaceShips();
 };
 
 #endif
